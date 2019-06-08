@@ -1,13 +1,12 @@
-import { TogglEntry } from './TogglEntry.d';
+import { TogglEntry } from './TogglEntry';
 import ical from 'ical-generator';
-import http from 'http';
+import { IncomingMessage, ServerResponse } from 'http';
 import moment from 'moment';
 import { env } from './env'
 import axios from 'axios'
 import qs from 'querystring'
-import fs from 'fs'
 
-const { PORT, TOGGL_API_TOKEN } = env
+const { TOGGL_API_TOKEN } = env
 
 async function getEntries() {
     const query = {
@@ -30,7 +29,7 @@ async function getEntries() {
     return res.data as TogglEntry[]
 }
 
-http.createServer(async function (req, res) {
+async function getCal() {
     const cal = ical({
         name: 'Toggl time entries',
         domain: 'kattcorp.com',
@@ -59,7 +58,13 @@ http.createServer(async function (req, res) {
         location: 'my room',
         url: 'http://kattcorp.com/'
     });
-    cal.serve(res);
-}).listen(PORT, '127.0.0.1', function () {
-    console.log(`Server running at http://127.0.0.1:${PORT}/`);
-});
+
+    return cal
+}
+
+
+export default async (_req: IncomingMessage, res: ServerResponse) => {
+    const cal = await getCal()
+
+    cal.serve(res)
+};

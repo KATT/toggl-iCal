@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "./src/**/*.ts",
+      "use": "@now/node"
+    }
+  ],
+  "env": {
+    "IS_NOW": "true",
+    "TOGGL_API_TOKEN": "@toggl-api-token"
+  },
+  "routes": [{ "src": "/", "dest": "/src" }]
+}
