@@ -1,7 +1,7 @@
 import { TogglEntry } from './TogglEntry.d';
 import ical from 'ical-generator';
 import http from 'http';
-import moment = require('moment');
+import moment from 'moment';
 import { env } from './env'
 import axios from 'axios'
 import qs from 'querystring'
@@ -24,9 +24,6 @@ async function getEntries() {
                 username: TOGGL_API_TOKEN,
                 password: 'api_token'
             },
-            headers: {
-                'content-type': 'application/json'
-            }
         }
     )
 
@@ -43,13 +40,14 @@ http.createServer(async function (req, res) {
 
     for (const entry of entries) {
         const icon = entry.billable ? '💲' : '❌'
+
         const durationInHoursRounded = Math.round((entry.duration / 60 / 60) * 10) / 10
         const duration = durationInHoursRounded > 0 ? `${durationInHoursRounded}h` : 'n/a'
 
         cal.createEvent({
             start: moment(entry.start),
             end: moment(entry.stop),
-            summary: `${icon} ${entry.description}\n - ⏳ ${duration}`
+            summary: `${icon} ${entry.description} - ⏳ ${duration}`
         })
     }
 
