@@ -1,43 +1,33 @@
-import { TogglEntry } from './TogglEntry';
+import { projectByIdLoaderFactory, getEntries } from './toggl';
 import ical from 'ical-generator';
 import { IncomingMessage, ServerResponse } from 'http';
 import moment from 'moment';
-import { env } from './env'
-import axios from 'axios'
-import qs from 'querystring'
-
-const { TOGGL_API_TOKEN } = env
-
-async function getEntries() {
-    const query = {
-        start_date: moment().startOf('year').toJSON(),
-        end_date: moment().toJSON()
-    }
-
-    const url = `https://www.toggl.com/api/v8/time_entries?${qs.stringify(query)}`
-
-    const res = await axios.get(
-        url,
-        {
-            auth: {
-                username: TOGGL_API_TOKEN,
-                password: 'api_token'
-            },
-        }
-    )
-
-    return res.data as TogglEntry[]
-}
 
 async function getCal() {
+    const loadProjectById = projectByIdLoaderFactory()
+
     const cal = ical({
         name: 'Toggl time entries',
         domain: 'kattcorp.com',
     });
 
-    const entries = await getEntries()
+    const entries = await getEntries({
+        start_date: moment().startOf('year').toDate(),
+        end_date: moment().toDate()
+    })
 
-    for (const entry of entries) {
+    const entriesWithProjects = await Promise.all(
+        entries.map(async (entry) => {
+            const project = await loadProjectById(entry.pid)
+
+            return {
+                ...entry,
+                project,
+            }
+        })
+    )
+
+    for (const entry of entriesWithProjects) {
         const icon = entry.billable ? '💲' : '❌'
 
         const durationInHoursRounded = Math.round((entry.duration / 60 / 60) * 10) / 10
@@ -46,7 +36,7 @@ async function getCal() {
         cal.createEvent({
             start: moment(entry.start),
             end: moment(entry.stop),
-            summary: `${icon} ${entry.description} - ⏳ ${duration}`
+            summary: `${icon} ${entry.description} - ${entry.project.name} - ${duration} ⏳`
         })
     }
 
@@ -61,7 +51,6 @@ async function getCal() {
 
     return cal
 }
-
 
 export default async (_req: IncomingMessage, res: ServerResponse) => {
     const cal = await getCal()
