@@ -1,26 +1,65 @@
+import { TogglEntry } from './TogglEntry.d';
 import ical from 'ical-generator';
 import http from 'http';
 import moment = require('moment');
 import { env } from './env'
+import axios from 'axios'
+import qs from 'querystring'
+import fs from 'fs'
 
-const { PORT } = env
-const cal = ical({domain: 'github.com', name: 'my first iCal'});
+const { PORT, TOGGL_API_TOKEN } = env
 
+async function getEntries() {
+    const query = {
+        start_date: moment().startOf('year').toJSON(),
+        end_date: moment().toJSON()
+    }
 
-// overwrite domain
-cal.domain('kattcorp.com');
+    const url = `https://www.toggl.com/api/v8/time_entries?${qs.stringify(query)}`
 
-cal.createEvent({
-    start: moment(),
-    end: moment().add(1, 'hour'),
-    summary: 'Example Event 👌',
-    description: 'It works!',
-    location: 'my room',
-    url: 'http://kattcorp.com/'
-});
+    const res = await axios.get(
+        url,
+        {
+            auth: {
+                username: TOGGL_API_TOKEN,
+                password: 'api_token'
+            },
+            headers: {
+                'content-type': 'application/json'
+            }
+        }
+    )
 
-http.createServer(function(req, res) {
+    return res.data as TogglEntry[]
+}
+
+http.createServer(async function (req, res) {
+    const cal = ical({
+        name: 'Toggl time entries',
+        domain: 'kattcorp.com',
+    });
+
+    const entries = await getEntries()
+
+    for (const entry of entries) {
+        const icon = entry.billable ? '💲' : '❌'
+
+        cal.createEvent({
+            start: moment(entry.start),
+            end: moment(entry.stop),
+            summary: `${icon} ${entry.description}`
+        })
+    }
+
+    cal.createEvent({
+        start: moment(),
+        end: moment().add(1, 'hour'),
+        summary: 'Example Event 👌',
+        description: 'It works!',
+        location: 'my room',
+        url: 'http://kattcorp.com/'
+    });
     cal.serve(res);
-}).listen(PORT, '127.0.0.1', function() {
+}).listen(PORT, '127.0.0.1', function () {
     console.log(`Server running at http://127.0.0.1:${PORT}/`);
 });
