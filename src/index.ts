@@ -43,11 +43,13 @@ http.createServer(async function (req, res) {
 
     for (const entry of entries) {
         const icon = entry.billable ? '💲' : '❌'
+        const durationInHoursRounded = Math.round((entry.duration / 60 / 60) * 10) / 10
+        const duration = durationInHoursRounded > 0 ? `${durationInHoursRounded}h` : 'n/a'
 
         cal.createEvent({
             start: moment(entry.start),
             end: moment(entry.stop),
-            summary: `${icon} ${entry.description}`
+            summary: `${icon} ${entry.description}\n - ⏳ ${duration}`
         })
     }
 
