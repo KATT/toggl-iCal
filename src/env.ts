@@ -1,4 +1,4 @@
-import { cleanEnv, num, str } from 'envalid';
+import { cleanEnv, str } from 'envalid';
 
 export const createEnv = (env: NodeJS.ProcessEnv = process.env) => cleanEnv(env, {
   TOGGL_API_TOKEN: str()

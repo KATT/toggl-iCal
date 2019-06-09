@@ -1,5 +1,5 @@
 import { env } from './env';
-import Axios, { AxiosRequestConfig } from 'axios';
+import Axios from 'axios';
 import { stringify } from 'querystring';
 
 const { TOGGL_API_TOKEN } = env
