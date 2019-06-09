@@ -1,10 +1,13 @@
-import { projectByIdLoaderFactory, getEntries } from './toggl';
+import { createClient } from './toggl';
 import ical from 'ical-generator';
 import { IncomingMessage, ServerResponse } from 'http';
 import moment from 'moment';
+import { env } from './env'
 
 async function getCal() {
-	const loadProjectById = projectByIdLoaderFactory()
+	const toggl = createClient({ token: env.TOGGL_API_TOKEN })
+
+	const loadProjectById = toggl.projectByIdLoaderFactory()
 
 	const cal = ical({
 		name: 'Toggl time entries',
