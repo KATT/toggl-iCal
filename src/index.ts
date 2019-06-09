@@ -2,10 +2,11 @@ import { createClient } from './toggl';
 import ical from 'ical-generator';
 import { IncomingMessage, ServerResponse } from 'http';
 import moment from 'moment';
-import { env } from './env'
+import url from 'url';
+import querystring from 'querystring'
 
-async function getCal() {
-	const toggl = createClient({ token: env.TOGGL_API_TOKEN })
+async function getCal({ token }: { token: string }) {
+	const toggl = createClient({ token })
 
 	const loadProjectById = toggl.projectByIdLoaderFactory()
 
@@ -30,6 +31,8 @@ async function getCal() {
 		})
 	)
 
+	console.log('num entries', entriesWithProjects.length)
+
 	for (const entry of entriesWithProjects) {
 		const icon = entry.billable ? '💲' : '❌'
 
@@ -46,8 +49,18 @@ async function getCal() {
 	return cal
 }
 
-export default async (_req: IncomingMessage, res: ServerResponse) => {
-	const cal = await getCal()
+export default async (req: IncomingMessage, res: ServerResponse) => {
+	const parts = url.parse(req.url!);
+	const { token } = querystring.parse(parts.query || '');
 
+	if (typeof token !== 'string') {
+		res.writeHead(400);
+		res.end(
+			'Missing query parameter "token"'
+		);
+		return
+	}
+
+	const cal = await getCal({ token })
 	cal.serve(res)
 };
