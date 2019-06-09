@@ -1,4 +1,3 @@
-import { env } from './env';
 import Axios from 'axios';
 import qs from 'querystring';
 
