@@ -40,15 +40,6 @@ async function getCal() {
         })
     }
 
-    cal.createEvent({
-        start: moment(),
-        end: moment().add(1, 'hour'),
-        summary: 'Example Event 👌',
-        description: 'It works!',
-        location: 'my room',
-        url: 'http://kattcorp.com/'
-    });
-
     return cal
 }
 
