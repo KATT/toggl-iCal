@@ -14,8 +14,8 @@ async function getCal() {
 		domain: 'kattcorp.com',
 	});
 
-	const entries = await getEntries({
-		start_date: moment().startOf('year').toDate(),
+	const entries = await toggl.getEntries({
+		start_date: moment().subtract(6, 'months').toDate(),
 		end_date: moment().toDate()
 	})
 
