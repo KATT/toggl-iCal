@@ -1,6 +1,6 @@
 import { env } from './env';
 import Axios from 'axios';
-import { stringify } from 'querystring';
+import qs from 'querystring';
 
 
 export interface TogglEntry {
@@ -58,7 +58,7 @@ export function createClient({ token }: { token: string }) {
 			end_date: end_date.toJSON()
 		}
 
-		const path = `/time_entries?${stringify(query)}`
+		const path = `/time_entries?${qs.stringify(query)}`
 
 		return get<TogglEntry[]>(path)
 	}
