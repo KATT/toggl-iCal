@@ -10,7 +10,7 @@ Toggl iCal
 5. Paste `http://127.0.0.1:3000/`
 
 
-🎉 Now you can view all year's Toggl entries.
+🎉 Now you can view the last six month's Toggl entries.
 
 
 ## Deploy
