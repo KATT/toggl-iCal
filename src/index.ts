@@ -36,7 +36,7 @@ async function getCal() {
         cal.createEvent({
             start: moment(entry.start),
             end: moment(entry.stop),
-            summary: `${icon} ${entry.description} - ${entry.project.name} - ${duration} ⏳`
+            summary: `${icon} ${entry.project.name}: ${entry.description} - ${duration} ⏳`
         })
     }
 
