@@ -12,8 +12,7 @@
     }
   ],
   "env": {
-    "IS_NOW": "true",
-    "TOGGL_API_TOKEN": "@toggl-api-token"
+    "IS_NOW": "true"
   },
   "routes": [{ "src": "/", "dest": "/src" }]
 }
