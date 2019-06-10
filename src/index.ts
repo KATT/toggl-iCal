@@ -31,8 +31,6 @@ async function getCal({ token }: { token: string }) {
 		})
 	)
 
-	console.log('num entries', entriesWithProjects.length)
-
 	for (const entry of entriesWithProjects) {
 		const icon = entry.billable ? '💲' : '❌'
 
