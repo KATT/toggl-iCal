@@ -46,7 +46,7 @@ async function getCal({ token }: { token: string }) {
       end: moment(entry.stop),
       summary: `${icon} ${entry.project.name}: ${
         entry.description
-      } - ${duration} ⏳`,
+      } - ⏳: ${duration}`,
     });
   }
 
