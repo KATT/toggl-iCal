@@ -23,14 +23,17 @@ async function getCal({ token }: { token: string }) {
   });
 
   const entriesWithProjects = await Promise.all(
-    entries.map(async entry => {
-      const project = await loadProjectById(entry.pid);
+    entries
+      .filter(entry => !!entry.pid)
+      .map(async entry => {
+        const project = await loadProjectById(entry.pid!);
 
-      return {
-        ...entry,
-        project,
-      };
-    }),
+
+        return {
+          ...entry,
+          project,
+        };
+      }),
   );
 
   for (const entry of entriesWithProjects) {
@@ -46,7 +49,7 @@ async function getCal({ token }: { token: string }) {
       end: moment(entry.stop),
       summary: `${icon} ${entry.project.name}: ${
         entry.description
-      } - ⏳: ${duration}`,
+        } - ⏳: ${duration}`,
     });
   }
 
