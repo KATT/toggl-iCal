@@ -1,4 +1,4 @@
-import { createClient } from "./toggl";
+import { createClient, TogglProject } from "./toggl";
 import ical from "ical-generator";
 import { IncomingMessage, ServerResponse } from "http";
 import moment from "moment";
@@ -24,10 +24,11 @@ async function getCal({ token }: { token: string }) {
 
   const entriesWithProjects = await Promise.all(
     entries
-      .filter(entry => !!entry.pid)
       .map(async entry => {
-        const project = await loadProjectById(entry.pid!);
-
+        let project: TogglProject | null = null
+        if (entry.pid) {
+          project = await loadProjectById(entry.pid!);
+        }
 
         return {
           ...entry,
@@ -44,11 +45,12 @@ async function getCal({ token }: { token: string }) {
     const duration =
       durationInHoursRounded > 0 ? `${durationInHoursRounded}h` : "n/a";
 
+    const projectName = entry.project ? entry.project.name : 'n/a'
     cal.createEvent({
       start: moment(entry.start),
       end: moment(entry.stop),
-      summary: `${icon} ${entry.project.name}: ${
-        entry.description
+      summary: `${icon} ${projectName}: ${
+        entry.description || 'n/a'
         } - ⏳: ${duration}`,
     });
   }
