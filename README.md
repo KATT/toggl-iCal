@@ -16,6 +16,11 @@
 4. `File` -> `New Calendar Subscription...`
 5. Paste `http://localhost:3000/?token=your_toggl_token_here`
 
+
+### Debugging
+
+http://localhost:3000/index.json?token=your_toggl_token_here
+
 ## Deploy
 
 1. `now`

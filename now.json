@@ -14,5 +14,14 @@
   "env": {
     "IS_NOW": "true"
   },
-  "routes": [{ "src": "/", "dest": "/src" }]
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/src"
+    },
+    {
+      "src": "/index.json",
+      "dest": "/src"
+    }
+  ]
 }
