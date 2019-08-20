@@ -1,19 +1,18 @@
-import { createClient, TogglProject } from "./toggl";
+import { createClient, TogglProject, TogglEntry } from "./toggl";
 import ical from "ical-generator";
 import { IncomingMessage, ServerResponse } from "http";
 import moment from "moment";
 import url from "url";
 import querystring from "querystring";
 
-async function getCal({ token }: { token: string }) {
+interface TogglEntryWithProject extends TogglEntry {
+  project: TogglProject | null
+}
+
+async function getData({ token }: { token: string }) {
   const toggl = createClient({ token });
 
   const loadProjectById = toggl.projectByIdLoaderFactory();
-
-  const cal = ical({
-    name: "Toggl time entries",
-    domain: "kattcorp.com",
-  });
 
   const entries = await toggl.getEntries({
     start_date: moment()
@@ -37,7 +36,19 @@ async function getCal({ token }: { token: string }) {
       }),
   );
 
-  for (const entry of entriesWithProjects) {
+  return {
+    entries: entriesWithProjects,
+  };
+}
+
+
+function createCal({ entries }: { entries: TogglEntryWithProject[] }) {
+  const cal = ical({
+    name: "Toggl time entries",
+    domain: "kattcorp.com",
+  });
+
+  for (const entry of entries) {
     const icon = entry.billable ? "💲" : "❌";
 
     const durationInHoursRounded =
@@ -58,6 +69,7 @@ async function getCal({ token }: { token: string }) {
   return cal;
 }
 
+
 export default async (req: IncomingMessage, res: ServerResponse) => {
   const parts = url.parse(req.url!);
   const { token } = querystring.parse(parts.query || "");
@@ -68,6 +80,15 @@ export default async (req: IncomingMessage, res: ServerResponse) => {
     return;
   }
 
-  const cal = await getCal({ token });
+  const data = await getData({ token })
+
+  if (parts.pathname === '/index.json') {
+    res.writeHead(200, { 'content-type': 'application/json' })
+    res.end(JSON.stringify(data, null, 4))
+    return
+  }
+
+  const cal = createCal(data)
+
   cal.serve(res);
 };
