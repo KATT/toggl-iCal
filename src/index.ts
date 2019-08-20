@@ -83,6 +83,7 @@ export default async (req: IncomingMessage, res: ServerResponse) => {
   const data = await getData({ token })
 
   if (parts.pathname === '/index.json') {
+    res.writeHead(200, { 'content-type': 'application/json' })
     res.end(JSON.stringify(data, null, 4))
     return
   }
