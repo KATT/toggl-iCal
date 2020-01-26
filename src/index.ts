@@ -57,12 +57,15 @@ function createCal({ entries }: { entries: TogglEntryWithProject[] }) {
       durationInHoursRounded > 0 ? `${durationInHoursRounded}h` : "n/a";
 
     const projectName = entry.project ? entry.project.name : 'n/a'
+    let summary = `${icon} ${projectName}`
+    if (entry.description) {
+      summary += `: ${entry.description}`
+    }
+    summary += ` - ⏳: ${duration}`
     cal.createEvent({
       start: moment(entry.start),
       end: moment(entry.stop),
-      summary: `${icon} ${projectName}: ${
-        entry.description || 'n/a'
-        } - ⏳: ${duration}`,
+      summary,
     });
   }
 
